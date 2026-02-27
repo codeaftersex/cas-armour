@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4" defer></script>
+  <link rel="stylesheet" href="style.css" />
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js" defer></script>
+  <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js" defer></script>
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css"/>
+
+  <script src="script.js" defer></script>
+</head>
+
+<body class="min-h-screen">
+
+  <div class="ui-stage">
+
+    <div class="ui-frame relative">
+      <div id="cas-loading"><div class="cas-loading-box rdr-lino text-[#CFCCCC] text-lg">LOADING...</div></div>
+
+      <div class="w-full h-full flex items-center justify-start flex-col cas-page absolute inset-0" id="sets-ui">
+
+        <div class="bg-[url(assets/setsheaderbg.png)] bgfull w-full h-[140px] relative">
+
+          <div
+            class="absolute left-1/2 -bottom-[184px] -translate-x-1/2 -translate-y-1/2 bg-[url(assets/setsheadermidmonogram.png)] bgfull w-[648px] h-[216px]">
+          </div>
+
+          <div
+            class="absolute -bottom-[86px] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[92px] h-[92px] rounded-full bg-[#202225] flex items-center justify-center">
+            <img loading="lazy" decoding="async" src="assets/weaponlogo.png" class="w-[80%] object-contain" alt="" />
+          </div>
+
+          <div id="cas-close-sets" class="absolute left-[24px] top-[24px] bg-[url(assets/btn-back.png)] bgfull w-[110px] py-1 text-center text-sm px-2 text-black rdr-lino cursor-pointer">BACK</div>
+<div
+            class="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 top-[54px] text-[#C4B498] text-3xl rdr-lino">
+            VIEW ALL SETS
+          </div>
+
+          <div class="w-full h-full hbg absolute -z-10"></div>
+        </div>
+
+        <div class="w-full flex-1 min-h-0 justify-between items-stretch flex">
+
+          <div class="bg-[url(assets/leftpanelbg.png)] bgfull h-full w-[486px] flex items-center justify-center">
+            <div id="cas-sets-list" class="flex flex-col w-[90%] h-[90%] min-h-0 overflow-auto gap-2 items-center justify-start">
+
+              <div class="bg-[url(assets/setrowbg.png)] bgfull w-full h-[140px] flex justify-center items-center">
+                <div class="flex items-center justify-center w-[20%] h-4/5">
+                  <img loading="lazy" decoding="async" src="assets/setlogo.png" class="h-[90%] object-contain" alt="" />
+                </div>
+
+                <div class="w-[70%] h-[80%] flex flex-col items-center justify-center">
+                  <h1 class="text-[#7D5E46] text-2xl rdr-lino">WOLF SETS</h1>
+                  <img loading="lazy" decoding="async" src="assets/bborder.png" class="w-full object-contain" alt="" />
+                  <div class="w-full flex justify-between items-center">
+                    <div class="flex flex-col">
+                      <h1 class="text-[#7D5E46] rdr-lino text-md">Protection</h1>
+                      <div class="progressInside w-[89px] h-[9px] relative">
+                        <div class="absolute left-[50%] w-2 h-2 rounded-full p-top"></div>
+                      </div>
+                    </div>
+                    <div class="flex flex-col">
+                      <h1 class="text-[#7D5E46] rdr-lino text-md">Protection</h1>
+                      <div class="progressInside w-[89px] h-[9px] relative">
+                        <div class="absolute left-[50%] w-2 h-2 rounded-full p-top"></div>
+                      </div>
+                    </div>
+                    <div class="flex flex-col">
+                      <h1 class="text-[#7D5E46] rdr-lino text-md">Protection</h1>
+                      <div class="progressInside w-[89px] h-[9px] relative">
+                        <div class="absolute left-[50%] w-2 h-2 rounded-full p-top"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="bg-[url(assets/setrowbg.png)] bgfull w-full h-[140px] flex justify-center items-center">
+                <div class="flex items-center justify-center w-[20%] h-4/5">
+                  <img loading="lazy" decoding="async" src="assets/setlogo.png" class="h-[90%] object-contain" alt="" />
+                </div>
+
+                <div class="w-[70%] h-[80%] flex flex-col items-center justify-center">
+                  <h1 class="text-[#7D5E46] text-2xl rdr-lino">WOLF SETS</h1>
+                  <img loading="lazy" decoding="async" src="assets/bborder.png" class="w-full object-contain" alt="" />
+                  <div class="w-full flex justify-between items-center">
+                    <div class="flex flex-col">
+                      <h1 class="text-[#7D5E46] rdr-lino text-md">Protection</h1>
+                      <div class="progressInside w-[89px] h-[9px] relative">
+                        <div class="absolute left-[50%] w-2 h-2 rounded-full p-top"></div>
+                      </div>
+                    </div>
+                    <div class="flex flex-col">
+                      <h1 class="text-[#7D5E46] rdr-lino text-md">Protection</h1>
+                      <div class="progressInside w-[89px] h-[9px] relative">
+                        <div class="absolute left-[50%] w-2 h-2 rounded-full p-top"></div>
+                      </div>
+                    </div>
+                    <div class="flex flex-col">
+                      <h1 class="text-[#7D5E46] rdr-lino text-md">Protection</h1>
+                      <div class="progressInside w-[89px] h-[9px] relative">
+                        <div class="absolute left-[50%] w-2 h-2 rounded-full p-top"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="bg-[url(assets/setrowbg.png)] bgfull w-full h-[140px] flex justify-center items-center">
+                <div class="flex items-center justify-center w-[20%] h-4/5">
+                  <img loading="lazy" decoding="async" src="assets/setlogo.png" class="h-[90%] object-contain" alt="" />
+                </div>
+
+                <div class="w-[70%] h-[80%] flex flex-col items-center justify-center">
+                  <h1 class="text-[#7D5E46] text-2xl rdr-lino">WOLF SETS</h1>
+                  <img loading="lazy" decoding="async" src="assets/bborder.png" class="w-full object-contain" alt="" />
+                  <div class="w-full flex justify-between items-center">
+                    <div class="flex flex-col">
+                      <h1 class="text-[#7D5E46] rdr-lino text-md">Protection</h1>
+                      <div class="progressInside w-[89px] h-[9px] relative">
+                        <div class="absolute left-[50%] w-2 h-2 rounded-full p-top"></div>
+                      </div>
+                    </div>
+                    <div class="flex flex-col">
+                      <h1 class="text-[#7D5E46] rdr-lino text-md">Protection</h1>
+                      <div class="progressInside w-[89px] h-[9px] relative">
+                        <div class="absolute left-[50%] w-2 h-2 rounded-full p-top"></div>
+                      </div>
+                    </div>
+                    <div class="flex flex-col">
+                      <h1 class="text-[#7D5E46] rdr-lino text-md">Protection</h1>
+                      <div class="progressInside w-[89px] h-[9px] relative">
+                        <div class="absolute left-[50%] w-2 h-2 rounded-full p-top"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="bg-[url(assets/leftpanelbg.png)] bgfull h-full w-[500px] flex items-center justify-center">
+              <div class="bg-[url(assets/setrightpanel.png)] bgfull h-[90%] w-[90%] py-4 px-6 flex items-center justify-start flex-col">
+                  <div class="flex flex-col justify-center items-center w-full mb-4">
+                    <img loading="lazy" decoding="async" src="assets/rightheadertopmono.png" alt="">
+                    <h1 class="text-[#4F432B] rdr-lino text-2xl">SET DETAILS</h1>
+                     <img loading="lazy" decoding="async" src="assets/rightheadertopmono.png" class="rotate-180" alt="">
+                  </div>
+                  <div id="cas-set-details" class="w-full h-full overflow-auto pr-2"></div>
+                </div>
+              </div>
+                  </div>
+              </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cas-page w-full h-full absolute inset-0" id="armor-ui">
+
+        <div id="cas-open-sets" class="absolute right-[24px] top-[24px] bg-[url(assets/btn-back.png)] bgfull w-[150px] py-1 text-center text-sm px-2 text-black rdr-lino cursor-pointer cas-sets-button cas-btn" style="z-index:35;">VIEW ALL SETS</div>
+
+        <div class="cas-top-panels" style="z-index:30;">
+          <div class="w-[524px] h-[324px] bg-[url(assets/selecteditembg.png)] bg-cover flex flex-col items-center p-4 gap-4 relative" id="cas-selected">
+            <div class="text-xl text-white rdr-lino">SELECTED ITEM</div>
+            <div class="flex items-start justify-center gap-3 flex-1 min-h-0 max-h-[70%] w-[90%]  ">
+              <div class="flex flex-col items-center justify-center">
+                <div class="bg-[url(assets/itembg.png)] bg-cover w-[100px] min-w-[100px] h-[100px] flex items-center justify-center">
+                  <img loading="lazy" decoding="async" id="cas-selected-icon" src="assets/testitem.png" class="w-[80%] object-contain" alt="" />
+                </div>
+                <div id="cas-selected-slot" class="py-0.5 px-3 text-black text-xs rdr-lino flex items-center justify-center bg-[url(assets/btn-back.png)] bgfull">
+                  -
+                </div>
+              </div>
+              <div id="cas-selected-stats" class="flex flex-col w-full overflow-auto pr-1 gap-1 max-h-[190px]"></div>
+            </div>
+          </div>
+
+          <div class="w-[524px] h-[324px] bg-[url(assets/selecteditembg.png)] bg-cover py-3 px-4 gap-1 flex flex-col items-center relative">
+            <div class="text-xl text-white rdr-lino">STATS</div>
+            <div id="cas-stats-grid" class="flex flex-col w-[85%] gap-[10px] overflow-auto pr-1 min-h-0 mt-2 max-h-[240px]"></div>
+          </div>
+        </div>
+
+        <svg id="cas-bone-lines" class="absolute inset-0 w-full h-full pointer-events-none" style="z-index:15;"></svg>
+
+        <div id="cas-floating-slots" class="absolute inset-0 pointer-events-none" style="z-index:20;"></div>
+
+        <div class="cas-bottom-inventory" style="z-index:25;">
+          <div class="w-[560px] h-[580px] bg-[url(assets/inventorybg.png)] flex items-center justify-center" id="player-inventory" style="background-size: 100% 100%;">
+            <div class="w-[88%] h-[92%] flex flex-col items-center justify-start gap-2 min-h-0">
+              <div class="w-full mb-6">
+                <h1 class="text-2xl text-white rdr-lino text-center">INVENTORY</h1>
+              </div>
+
+              <div class="flex w-full items-center gap-1" id="search-categories-row">
+                <div class="bg-[url(assets/searchinputbg.png)] bgfull min-w-[160px] h-[34px] flex items-center justify-start p-2">
+                  <img loading="lazy" decoding="async" src="assets/searchicon.png" class="w-[14px] h-[14px]" alt="" />
+                  <input id="cas-search" type="text" placeholder="Search..." class="bg-transparent outline-none ml-1 text-white rdr-lino w-full text-sm" />
+                </div>
+
+                <div class="flex items-center justify-center gap-0.5">
+                  <div class="bg-[url(assets/btn-back.png)] bgfull w-[72px] py-0.5 text-center text-xs px-1 text-black rdr-lino cas-weight-filter active" data-weight="all">ALL</div>
+                  <div class="bg-[url(assets/btn-back.png)] bgfull w-[72px] py-0.5 text-center text-xs px-1 text-black rdr-lino cas-weight-filter" data-weight="medium">MED</div>
+                  <div class="bg-[url(assets/btn-back.png)] bgfull w-[72px] py-0.5 text-center text-xs px-1 text-black rdr-lino cas-weight-filter" data-weight="light">LIGHT</div>
+                  <div class="bg-[url(assets/btn-back.png)] bgfull w-[72px] py-0.5 text-center text-xs px-1 text-black rdr-lino cas-weight-filter" data-weight="heavy">HEAVY</div>
+                </div>
+              </div>
+
+              <div id="cas-inv-grid" class="w-full flex-1 min-h-0 grid grid-cols-5 gap-3 overflow-auto pr-2"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="cas-armour-hud" class="cas-armour-hud">
+    <div class="cas-armour-hud-title rdr-lino">ARMOUR</div>
+    <div id="cas-armour-hud-bars" class="cas-armour-hud-bars"></div>
+  </div>
+
+</body>
+</html>

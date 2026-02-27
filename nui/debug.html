@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CAS Armour - Debug</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4" defer></script>
+  <link rel="stylesheet" href="style.css" />
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js" defer></script>
+  <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js" defer></script>
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css"/>
+
+  <script>
+    function GetParentResourceName() { return "cas-armour"; }
+
+    (function(){
+      const _origReady = [];
+      document.addEventListener("DOMContentLoaded", function(){
+        const origPost = $.post;
+        $.post = function(url, data){
+          const action = url.replace("https://cas-armour/", "");
+          const payload = typeof data === "string" ? JSON.parse(data) : data;
+          console.log("[NUI ->]", action, payload);
+
+          if(action === "cas_armour:requestData"){
+            setTimeout(() => injectMockState(), 100);
+          }
+          if(action === "cas_armour:close"){
+            console.log("[DEBUG] UI closed");
+          }
+          if(action === "slotFocus"){
+            console.log("[CAM] Zoom to slot:", payload.slot);
+          }
+          if(action === "slotReset"){
+            console.log("[CAM] Reset to full body");
+          }
+          if(action === "cas_armour:equip"){
+            console.log("[EQUIP]", payload);
+          }
+          if(action === "cas_armour:unequip"){
+            console.log("[UNEQUIP]", payload);
+          }
+
+          return $.Deferred().resolve({ok:true}).promise();
+        };
+      });
+    })();
+  </script>
+
+  <script src="script.js" defer></script>
+
+  <style>
+
+    body {
+      background: #0a0a0a url('assets/mainbg.jpg') center/cover no-repeat !important;
+    }
+
+    #debug-toolbar {
+      position: fixed;
+      top: 8px;
+      right: 8px;
+      z-index: 9999999;
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      max-width: 400px;
+    }
+    #debug-toolbar button {
+      background: rgba(217,175,107,0.9);
+      color: #1a1510;
+      border: 1px solid #3d3428;
+      border-radius: 6px;
+      padding: 4px 12px;
+      font-size: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      font-family: monospace;
+    }
+    #debug-toolbar button:hover {
+      background: rgba(217,175,107,1);
+      transform: scale(1.02);
+    }
+    #debug-toolbar button.active {
+      background: #3BAA6B;
+      color: white;
+    }
+    #debug-log {
+      position: fixed;
+      bottom: 8px;
+      right: 8px;
+      z-index: 9999999;
+      width: 360px;
+      max-height: 200px;
+      overflow-y: auto;
+      background: rgba(0,0,0,0.85);
+      border: 1px solid rgba(217,175,107,0.3);
+      border-radius: 8px;
+      padding: 8px;
+      font-family: monospace;
+      font-size: 11px;
+      color: #aaa;
+      display: none;
+    }
+    #debug-log.show { display: block; }
+    #debug-log .log-entry { margin-bottom: 2px; }
+    #debug-log .log-nui { color: #D9AF6B; }
+    #debug-log .log-cam { color: #3BAA6B; }
+  </style>
+</head>
+<body class="min-h-screen">
+
+  <div class="ui-stage">
+
+    <div class="ui-frame relative">
+      <div id="cas-loading"><div class="cas-loading-box rdr-lino text-[#CFCCCC] text-lg">LOADING...</div></div>
+
+      <div class="w-full h-full flex items-center justify-start flex-col cas-page absolute inset-0" id="sets-ui">
+        <div class="bg-[url(assets/setsheaderbg.png)] bgfull w-full h-[140px] relative">
+          <div class="absolute left-1/2 -bottom-[184px] -translate-x-1/2 -translate-y-1/2 bg-[url(assets/setsheadermidmonogram.png)] bgfull w-[648px] h-[216px]"></div>
+          <div class="absolute -bottom-[86px] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[92px] h-[92px] rounded-full bg-[#202225] flex items-center justify-center">
+            <img loading="lazy" decoding="async" src="assets/weaponlogo.png" class="w-[80%] object-contain" alt="" />
+          </div>
+          <div id="cas-close-sets" class="absolute left-[24px] top-[24px] bg-[url(assets/btn-back.png)] bgfull w-[110px] py-1 text-center text-sm px-2 text-black rdr-lino cursor-pointer">BACK</div>
+          <div class="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 top-[54px] text-[#C4B498] text-3xl rdr-lino">VIEW ALL SETS</div>
+          <div class="w-full h-full hbg absolute -z-10"></div>
+        </div>
+        <div class="w-full flex-1 min-h-0 justify-between items-stretch flex">
+          <div class="bg-[url(assets/leftpanelbg.png)] bgfull h-full w-[486px] flex items-center justify-center">
+            <div id="cas-sets-list" class="flex flex-col w-[90%] h-[90%] min-h-0 overflow-auto gap-2 items-center justify-start"></div>
+          </div>
+          <div class="bg-[url(assets/leftpanelbg.png)] bgfull h-full w-[500px] flex items-center justify-center">
+            <div class="bg-[url(assets/setrightpanel.png)] bgfull h-[90%] w-[90%] py-4 px-6 flex items-center justify-start flex-col">
+              <div class="flex flex-col justify-center items-center w-full mb-4">
+                <img loading="lazy" decoding="async" src="assets/rightheadertopmono.png" alt="">
+                <h1 class="text-[#4F432B] rdr-lino text-2xl">SET DETAILS</h1>
+                <img loading="lazy" decoding="async" src="assets/rightheadertopmono.png" class="rotate-180" alt="">
+              </div>
+              <div id="cas-set-details" class="w-full h-full overflow-auto pr-2"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cas-page w-full h-full absolute inset-0" id="armor-ui">
+        <div id="cas-open-sets" class="absolute right-[24px] top-[24px] bg-[url(assets/btn-back.png)] bgfull w-[150px] py-1 text-center text-sm px-2 text-black rdr-lino cursor-pointer cas-sets-button cas-btn" style="z-index:35;">VIEW ALL SETS</div>
+
+        <div class="cas-left-column" style="z-index:30;">
+          <div class="w-[524px] h-[200px] bg-[url(assets/statsbg.png)] py-3 px-4 gap-1 flex flex-col items-center bg-cover">
+            <div class="text-xl text-white rdr-lino">STATS</div>
+            <div id="cas-stats-grid" class="grid grid-cols-2 w-full gap-1 overflow-auto pr-1 flex-1 min-h-0"></div>
+          </div>
+          <div class="w-[524px] h-[200px] bg-[url(assets/selecteditembg.png)] bg-cover flex flex-col items-center p-4 gap-4" id="cas-selected">
+            <div class="text-xl text-white rdr-lino">SELECTED ITEM</div>
+            <div class="flex items-start justify-center gap-3 flex-1 min-h-0 max-h-[70%] w-[90%]">
+              <div class="flex flex-col items-center justify-center">
+                <div class="bg-[url(assets/itembg.png)] bg-cover w-[100px] min-w-[100px] h-[100px] flex items-center justify-center">
+                  <img loading="lazy" decoding="async" id="cas-selected-icon" src="assets/testitem.png" class="w-[80%] object-contain" alt="" />
+                </div>
+                <div id="cas-selected-slot" class="py-0.5 px-3 text-[#6B422B] text-xs rdr-lino flex items-center justify-center bg-[url(assets/btn-back.png)] bgfull">-</div>
+              </div>
+              <div id="cas-selected-stats" class="flex flex-col w-full overflow-auto pr-1 h-full gap-1"></div>
+            </div>
+          </div>
+          <div class="w-[524px] flex-1 min-h-0 bg-[url(assets/inventorybg.png)] bg-cover flex items-center justify-center" id="player-inventory">
+            <div class="w-[92%] h-[92%] flex flex-col items-center justify-start gap-2 min-h-0">
+              <div class="w-full"><h1 class="text-2xl text-[#CFCCCC] rdr-lino">INVENTORY</h1></div>
+              <div class="flex w-full items-center gap-1" id="search-categories-row">
+                <div class="bg-[url(assets/searchinputbg.png)] bgfull min-w-[160px] h-[34px] flex items-center justify-start p-2">
+                  <img loading="lazy" decoding="async" src="assets/searchicon.png" class="w-[14px] h-[14px]" alt="" />
+                  <input id="cas-search" type="text" placeholder="Search..." class="bg-transparent outline-none ml-1 text-white rdr-lino w-full text-sm" />
+                </div>
+                <div class="flex items-center justify-center gap-0.5">
+                  <div class="bg-[url(assets/btn-back.png)] bgfull w-[72px] py-0.5 text-center text-xs px-1 text-black rdr-lino cas-weight-filter active" data-weight="all">ALL</div>
+                  <div class="bg-[url(assets/btn-back.png)] bgfull w-[72px] py-0.5 text-center text-xs px-1 text-black rdr-lino cas-weight-filter" data-weight="medium">MED</div>
+                  <div class="bg-[url(assets/btn-back.png)] bgfull w-[72px] py-0.5 text-center text-xs px-1 text-black rdr-lino cas-weight-filter" data-weight="light">LIGHT</div>
+                  <div class="bg-[url(assets/btn-back.png)] bgfull w-[72px] py-0.5 text-center text-xs px-1 text-black rdr-lino cas-weight-filter" data-weight="heavy">HEAVY</div>
+                </div>
+              </div>
+              <div id="cas-inv-grid" class="w-full flex-1 min-h-0 grid grid-cols-5 gap-3 overflow-auto pr-2"></div>
+            </div>
+          </div>
+        </div>
+        <svg id="cas-bone-lines" class="absolute inset-0 w-full h-full pointer-events-none" style="z-index:15;"></svg>
+        <div id="cas-floating-slots" class="absolute inset-0 pointer-events-none" style="z-index:20;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="cas-armour-hud" class="cas-armour-hud">
+    <div class="cas-armour-hud-title rdr-lino">ARMOUR</div>
+    <div id="cas-armour-hud-bars" class="cas-armour-hud-bars"></div>
+  </div>
+
+  <div id="debug-toolbar">
+    <button onclick="debugOpen()">OPEN UI</button>
+    <button onclick="debugClose()">CLOSE UI</button>
+    <button onclick="debugToggleEquip()">TOGGLE EQUIP</button>
+    <button onclick="debugToggleLog()" id="btn-log">LOG</button>
+    <button onclick="debugInjectBones()">FAKE BONES</button>
+    <button onclick="debugRefresh()">REFRESH DATA</button>
+  </div>
+  <div id="debug-log"></div>
+
+  <script>
+    const MOCK_CONFIG = {
+      slots: ["head","chest","vest","pants","boots","gloves","belt","amulet","trinket1","trinket2"],
+      armorPieces: {
+        wolf_skull_helm:    { name:"Wolf Skull Helm",    itemName:"wolf_skull_helm",    slot:"head",   weight:"light",  set:"wolf_set", stats:{armorBase:3,animalResist:10,coldResist:3,stealthModifier:0,intimidation:2}, condition:40, maxCondition:40 },
+        wolf_pelt_coat:     { name:"Wolf Pelt Coat",     itemName:"wolf_pelt_coat",     slot:"chest",  weight:"medium", set:"wolf_set", stats:{armorBase:6,bulletResist:5,animalResist:15,coldResist:8}, condition:60, maxCondition:60 },
+        wolf_tracker_vest:  { name:"Wolf Tracker Vest",  itemName:"wolf_tracker_vest",  slot:"vest",   weight:"light",  set:"wolf_set", stats:{armorBase:2,animalResist:5,coldResist:2,stealthModifier:2}, condition:38, maxCondition:38 },
+        wolf_hide_chaps:    { name:"Wolf Hide Chaps",    itemName:"wolf_hide_chaps",    slot:"pants",  weight:"medium", set:"wolf_set", stats:{armorBase:3,coldResist:4,fallResist:2}, condition:50, maxCondition:50 },
+        wolf_hunter_boots:  { name:"Wolf Hunter Boots",  itemName:"wolf_hunter_boots",  slot:"boots",  weight:"light",  set:"wolf_set", stats:{armorBase:2,coldResist:3,stealthModifier:4}, condition:40, maxCondition:40 },
+        wolf_fur_gloves:    { name:"Wolf Fur Gloves",    itemName:"wolf_fur_gloves",    slot:"gloves", weight:"light",  set:"wolf_set", stats:{armorBase:2,animalResist:5,coldResist:5,stealthModifier:3}, condition:35, maxCondition:35 },
+        wolf_hunting_belt:  { name:"Wolf Hunting Belt",  itemName:"wolf_hunting_belt",  slot:"belt",   weight:"light",  set:"wolf_set", stats:{armorBase:1,animalResist:3}, condition:35, maxCondition:35 },
+        wolf_fang_amulet:   { name:"Wolf Fang Amulet",   itemName:"wolf_fang_amulet",   slot:"amulet", weight:"light",  set:"wolf_set", stats:{armorBase:1,animalResist:5,coldResist:2}, condition:30, maxCondition:30 },
+        bear_skull_pauldrons:{name:"Bear Skull Pauldrons",itemName:"bear_skull_pauldrons",slot:"chest", weight:"heavy",  set:"bear_barbarian", stats:{armorBase:8,bulletResist:10,meleeResist:6,fallResist:5}, condition:80, maxCondition:80 },
+        shadow_cloak:       { name:"Shadow Cloak",       itemName:"shadow_cloak",       slot:"chest",  weight:"light",  set:"night_stalker", stats:{armorBase:3,bulletResist:6,stealthModifier:10,noiseModifier:-10}, condition:42, maxCondition:42 },
+        obsidian_boots:     { name:"Obsidian Boots",     itemName:"obsidian_boots",     slot:"boots",  weight:"light",  set:"night_stalker", stats:{armorBase:2,bulletResist:4,stealthModifier:12,noiseModifier:-12}, condition:35, maxCondition:35 },
+        reinforced_duster_coat:{name:"Reinforced Duster",itemName:"reinforced_duster_coat",slot:"chest",weight:"light", set:"outlaw_duster", stats:{armorBase:4,bulletResist:12,stealthModifier:4}, condition:45, maxCondition:45 },
+      },
+      armorSets: {
+        wolf_set: {
+          name:"Wolf Hunter", icon:"", image:"assets/setresim/wolf_set.png",
+          pieces:["wolf_skull_helm","wolf_pelt_coat","wolf_tracker_vest","wolf_hide_chaps","wolf_hunter_boots","wolf_fur_gloves","wolf_hunting_belt","wolf_fang_amulet"],
+          bonuses:{
+            "2":  {name:"Pack Mentality",    description:"The wolf's spirit strengthens you.", stats:{animalResist:5,coldResist:3}},
+            "4":  {name:"Tracker Instinct",  description:"You read the wild like a map.",     stats:{animalResist:10,coldResist:6,stealthModifier:2}},
+            "6":  {name:"Relentless Hunt",   description:"You keep moving through cold.",     stats:{bulletResist:5,stealthModifier:4}},
+          }
+        },
+        bear_barbarian: {
+          name:"Bear Barbarian", icon:"", image:"assets/setresim/bear_barbarian.png",
+          pieces:["bear_skull_pauldrons"],
+          bonuses:{
+            "2": {name:"Berserker Blood", description:"Your blood runs wild.", stats:{bulletResist:5,meleeResist:3}},
+          }
+        },
+        night_stalker: {
+          name:"Night Stalker", icon:"", image:"assets/setresim/night_stalker.png",
+          pieces:["shadow_cloak","obsidian_boots"],
+          bonuses:{
+            "2": {name:"Fade Into Shadow", description:"Harder to spot in darkness.", stats:{stealthModifier:8,noiseModifier:-5}},
+          }
+        },
+      }
+    };
+
+    let mockEquipped = false;
+
+    const MOCK_EQUIPMENT_EMPTY = {};
+    const MOCK_EQUIPMENT_FILLED = {
+      head:   { itemName:"wolf_skull_helm",   pieceId:"wolf_skull_helm",   condition:32, maxCondition:40 },
+      chest:  { itemName:"wolf_pelt_coat",    pieceId:"wolf_pelt_coat",    condition:48, maxCondition:60 },
+      vest:   { itemName:"wolf_tracker_vest", pieceId:"wolf_tracker_vest", condition:30, maxCondition:38 },
+      boots:  { itemName:"wolf_hunter_boots", pieceId:"wolf_hunter_boots", condition:25, maxCondition:40 },
+      gloves: { itemName:"wolf_fur_gloves",   pieceId:"wolf_fur_gloves",   condition:28, maxCondition:35 },
+    };
+
+    const MOCK_INVENTORY = [
+      { name:"wolf_skull_helm",       label:"Wolf Skull Helm",       count:1, metadata:{casArmour:{pieceId:"wolf_skull_helm",condition:40,maxCondition:40}} },
+      { name:"wolf_pelt_coat",        label:"Wolf Pelt Coat",        count:1, metadata:{casArmour:{pieceId:"wolf_pelt_coat",condition:55,maxCondition:60}} },
+      { name:"wolf_tracker_vest",     label:"Wolf Tracker Vest",     count:1, metadata:{casArmour:{pieceId:"wolf_tracker_vest",condition:38,maxCondition:38}} },
+      { name:"wolf_hide_chaps",       label:"Wolf Hide Chaps",       count:1, metadata:{casArmour:{pieceId:"wolf_hide_chaps",condition:50,maxCondition:50}} },
+      { name:"wolf_hunter_boots",     label:"Wolf Hunter Boots",     count:1, metadata:{casArmour:{pieceId:"wolf_hunter_boots",condition:40,maxCondition:40}} },
+      { name:"wolf_fur_gloves",       label:"Wolf Fur Gloves",       count:1, metadata:{casArmour:{pieceId:"wolf_fur_gloves",condition:35,maxCondition:35}} },
+      { name:"wolf_hunting_belt",     label:"Wolf Hunting Belt",     count:1, metadata:{casArmour:{pieceId:"wolf_hunting_belt",condition:35,maxCondition:35}} },
+      { name:"wolf_fang_amulet",      label:"Wolf Fang Amulet",      count:1, metadata:{casArmour:{pieceId:"wolf_fang_amulet",condition:30,maxCondition:30}} },
+      { name:"bear_skull_pauldrons",  label:"Bear Skull Pauldrons",  count:1, metadata:{casArmour:{pieceId:"bear_skull_pauldrons",condition:80,maxCondition:80}} },
+      { name:"shadow_cloak",          label:"Shadow Cloak",          count:1, metadata:{casArmour:{pieceId:"shadow_cloak",condition:42,maxCondition:42}} },
+      { name:"obsidian_boots",        label:"Obsidian Boots",        count:1, metadata:{casArmour:{pieceId:"obsidian_boots",condition:35,maxCondition:35}} },
+      { name:"reinforced_duster_coat",label:"Reinforced Duster Coat",count:1, metadata:{casArmour:{pieceId:"reinforced_duster_coat",condition:45,maxCondition:45}} },
+    ];
+
+    const MOCK_STATS = {
+      armorBase: 14, bulletResist: 5, animalResist: 35, coldResist: 20,
+      stealthModifier: 9, staminaCostModifier: 1, noiseModifier: 0,
+    };
+
+    const MOCK_BONE_POSITIONS = {
+      head:     { x: 0.50, y: 0.12, side: "left"  },
+      chest:    { x: 0.50, y: 0.30, side: "left"  },
+      gloves:   { x: 0.42, y: 0.52, side: "left"  },
+      belt:     { x: 0.50, y: 0.48, side: "left"  },
+      boots:    { x: 0.48, y: 0.88, side: "left"  },
+      amulet:   { x: 0.50, y: 0.22, side: "right" },
+      vest:     { x: 0.50, y: 0.34, side: "right" },
+      pants:    { x: 0.52, y: 0.62, side: "right" },
+      trinket1: { x: 0.56, y: 0.50, side: "right" },
+      trinket2: { x: 0.54, y: 0.46, side: "right" },
+    };
+
+    function injectMockState(){
+      const eq = mockEquipped ? MOCK_EQUIPMENT_FILLED : MOCK_EQUIPMENT_EMPTY;
+      window.postMessage({
+        action: "cas_armour:setState",
+        payload: {
+          config: MOCK_CONFIG,
+          equipment: eq,
+          inventory: MOCK_INVENTORY,
+          stats: mockEquipped ? MOCK_STATS : {},
+          activeSetBonuses: [],
+          activePassives: [],
+        }
+      }, "*");
+    }
+
+    function debugOpen(){
+      window.postMessage({ action: "cas_armour:open" }, "*");
+      setTimeout(() => {
+        injectMockState();
+        setTimeout(() => debugInjectBones(), 200);
+      }, 150);
+    }
+
+    function debugClose(){
+      window.postMessage({ action: "cas_armour:close" }, "*");
+    }
+
+    function debugToggleEquip(){
+      mockEquipped = !mockEquipped;
+      injectMockState();
+      debugLog(mockEquipped ? "Equipment ON (5 pieces)" : "Equipment OFF", "log-cam");
+    }
+
+    function debugInjectBones(){
+      window.postMessage({
+        action: "cas_armour:bonePositions",
+        positions: MOCK_BONE_POSITIONS
+      }, "*");
+      debugLog("Bone positions injected", "log-cam");
+    }
+
+    function debugRefresh(){
+      injectMockState();
+      setTimeout(() => debugInjectBones(), 100);
+      debugLog("Data refreshed", "log-cam");
+    }
+
+    function debugToggleLog(){
+      const el = document.getElementById("debug-log");
+      el.classList.toggle("show");
+      document.getElementById("btn-log").classList.toggle("active");
+    }
+
+    function debugLog(msg, cls){
+      const el = document.getElementById("debug-log");
+      const d = document.createElement("div");
+      d.className = "log-entry " + (cls || "");
+      d.textContent = new Date().toLocaleTimeString() + " " + msg;
+      el.appendChild(d);
+      el.scrollTop = el.scrollHeight;
+    }
+
+    const _origLog = console.log;
+    console.log = function(){
+      _origLog.apply(console, arguments);
+      const msg = Array.from(arguments).join(" ");
+      if(msg.includes("[NUI") || msg.includes("[CAM") || msg.includes("[EQUIP") || msg.includes("[UNEQUIP") || msg.includes("[DEBUG")){
+        const cls = msg.includes("[CAM") ? "log-cam" : "log-nui";
+        debugLog(msg, cls);
+      }
+    };
+
+    document.addEventListener("DOMContentLoaded", function(){
+      setTimeout(() => debugOpen(), 600);
+    });
+  </script>
+</body>
+</html>

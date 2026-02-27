@@ -1,0 +1,5 @@
+.claude/
+*.output
+node_modules/
+.env
+*.orig
