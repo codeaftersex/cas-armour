@@ -1267,10 +1267,17 @@ end)
 
 RegisterNetEvent('vorp:SelectedCharacter', function()
   CreateThread(function()
-    Wait(1500)
+    Wait(2000)
     CaptureBaseMaxHp()
-    Wait(500)
-    TriggerServerEvent('cas-armour:server:loadEquipment')
+    for attempt = 1, 10 do
+      TriggerServerEvent('cas-armour:server:loadEquipment')
+      Wait(2000)
+      if ClientState.equipment and next(ClientState.equipment) then
+        dprint('Equipment loaded after ' .. attempt .. ' attempt(s)')
+        break
+      end
+      dprint('Equipment not loaded yet, retrying... (' .. attempt .. '/10)')
+    end
   end)
 end)
 
