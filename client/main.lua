@@ -852,17 +852,13 @@ end)
 
 CreateThread(function()
   local attempts = 0
-  while not ClientState.nuiReady and attempts < 30 do
+  while not ClientState.nuiReady do
     Wait(1000)
     attempts = attempts + 1
     SendNUIMessage({ action = 'cas_armour:ping' })
-    dprint(('NUI ping attempt %d/30'):format(attempts))
+    dprint(('NUI ping attempt %d'):format(attempts))
   end
-  if ClientState.nuiReady then
-    dprint('NUI ready confirmed after ' .. attempts .. ' ping(s)')
-  else
-    dprint('NUI did not respond after 30 pings — may need resource restart')
-  end
+  dprint('NUI ready confirmed after ' .. attempts .. ' ping(s)')
 end)
 
 RegisterCommand(Config.OpenCommand, function()
@@ -872,6 +868,7 @@ RegisterCommand(Config.OpenCommand, function()
   end
 
   if not ClientState.isUiOpen then
+    SendStateToNui()
     NuiFocus(true)
     SendNUIMessage({ action = 'cas_armour:open' })
   else
@@ -1263,11 +1260,26 @@ AddEventHandler('onClientResourceStart', function(res)
     Wait(1000)
     TriggerServerEvent('cas-armour:server:loadEquipment')
   end)
+  -- Re-trigger NUI ping in case the browser frame just loaded
+  CreateThread(function()
+    Wait(200)
+    if not ClientState.nuiReady then
+      SendNUIMessage({ action = 'cas_armour:ping' })
+    end
+  end)
 end)
 
 RegisterNetEvent('vorp:SelectedCharacter', function()
   CreateThread(function()
     Wait(2000)
+    -- Ensure NUI is pinged after character select (browser may only now be ready)
+    if not ClientState.nuiReady then
+      for i = 1, 30 do
+        SendNUIMessage({ action = 'cas_armour:ping' })
+        Wait(500)
+        if ClientState.nuiReady then break end
+      end
+    end
     CaptureBaseMaxHp()
     for attempt = 1, 10 do
       TriggerServerEvent('cas-armour:server:loadEquipment')
