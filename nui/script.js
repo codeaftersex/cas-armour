@@ -4,6 +4,31 @@
 
   const RES_NAME = (typeof GetParentResourceName === "function") ? GetParentResourceName() : "cas-armour";
 
+  function _casSendNuiReady(){
+    try {
+      fetch("https://" + RES_NAME + "/cas_armour:nuiReady", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: "{}"
+      }).catch(function(){});
+    } catch(e){}
+  }
+
+  window.addEventListener("message", function(event){
+    var d = event && event.data;
+    if(d && d.action === "cas_armour:ping"){
+      _casSendNuiReady();
+    }
+  });
+
+  _casSendNuiReady();
+  var _casReadyTries = 0;
+  var _casReadyTimer = setInterval(function(){
+    _casReadyTries++;
+    _casSendNuiReady();
+    if(_casReadyTries >= 40){ clearInterval(_casReadyTimer); }
+  }, 1500);
+
   const STATE = {
     open: false,
     dragging: false,
@@ -1376,10 +1401,6 @@ function renderStats(){
       positionFloatingSlots();
       return;
     }
-    if(data.action === "cas_armour:ping"){
-      postNui("cas_armour:nuiReady", {});
-      return;
-    }
   });
 
   $(document).ready(function(){
@@ -1395,7 +1416,7 @@ function renderStats(){
 
     setTimeout(() => { preloadCoreAssets(); }, 50);
 
-    postNui("cas_armour:nuiReady", {});
+    _casSendNuiReady();
   });
 
 })();
