@@ -845,20 +845,33 @@ local function Recompute()
 end
 
 RegisterNUICallback('cas_armour:nuiReady', function(_, cb)
-  ClientState.nuiReady = true
-  dprint('NUI ready signal received')
+  if not ClientState.nuiReady then
+    ClientState.nuiReady = true
+    dprint('NUI ready signal received')
+  end
   cb({ ok = true })
 end)
 
 CreateThread(function()
   local attempts = 0
+  SendNUIMessage({ action = 'cas_armour:ping' })
   while not ClientState.nuiReady do
-    Wait(1000)
+    Wait(500)
     attempts = attempts + 1
     SendNUIMessage({ action = 'cas_armour:ping' })
-    dprint(('NUI ping attempt %d'):format(attempts))
+    if attempts % 10 == 0 then
+      dprint(('NUI ping attempt %d (still waiting)'):format(attempts))
+    end
   end
   dprint('NUI ready confirmed after ' .. attempts .. ' ping(s)')
+end)
+
+CreateThread(function()
+  Wait(15000)
+  if not ClientState.nuiReady then
+    print('^3[cas-armour]^7 NUI handshake did not complete in 15s, force-marking as ready (fallback)')
+    ClientState.nuiReady = true
+  end
 end)
 
 RegisterCommand(Config.OpenCommand, function()
